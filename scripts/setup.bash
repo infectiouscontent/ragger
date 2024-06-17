@@ -7,7 +7,7 @@ sudo apt -y update
 sudo apt -y upgrade
 sudo apt -y install nodejs npm && echo "installed node version $(node -v)" && echo "installed npm version $(npm -v)"
 npm install typescript express axios cheerio cors node-fetch
-node node backend/server.js &
+node backend/server.mjs &
 # nohup node node backend/server.js > /dev/null 2>&1 &
 mkdir authentication
 vi authentication/openai
