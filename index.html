@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/infectiouscontent-logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ragger</title>
+    <link rel="stylesheet" href="/src/style.css">
+    <link rel="icon" type="image/png" href="/infectiouscontent-logo.png">
+</head>
+<body>
+    <div class="container">
+        <img src="/infectiouscontent-logo.png" alt="Infectious Content Logo" class="logo" />
+        <h1>OpenAI API Interaction</h1>
+        <label for="user-input">User Input</label>
+        <textarea id="user-input" placeholder="Type your input here...">How old is Jamaica?</textarea>
+        <label for="system-input">System Prompt</label>
+        <input id="system-input" placeholder="Type your input here..." type="text" value="You are a poet. Respond in prose that rhymes. Use humor whenever possible.">
+        <button id="submission-button">Send</button>
+        <div id="response" class="output"></div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
