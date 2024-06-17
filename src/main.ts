@@ -1,24 +1,41 @@
+import './style.css';
+
 const button = document.getElementById('submission-button') as HTMLButtonElement | null;
-const systemInput = document.getElementById('system-input') as HTMLInputElement | null;
 const userInput = document.getElementById('user-input') as HTMLTextAreaElement | null;
+const systemInput = document.getElementById('system-input') as HTMLInputElement | null;
 const responseOutput = document.getElementById('response') as HTMLElement | null;
 
 async function sendInput() {
-    if (!systemInput || !userInput || !responseOutput) {
+    if (!userInput || !systemInput || !responseOutput) {
         console.error('Required DOM elements are missing.');
         return;
     }
 
-    const systemText = systemInput.value.trim();
-    const userText = userInput.value.trim();
-
-    if (!userText) {
-        responseOutput.textContent = 'User input cannot be empty.';
+    const inputText = userInput.value.trim();
+    const systemPrompt = systemInput.value.trim();
+    if (!inputText || !systemPrompt) {
+        responseOutput.textContent = 'Inputs cannot be empty.';
         return;
     }
 
     try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        // Fetch web content from the backend server
+        const webContentResponse = await fetch('http://localhost:3000/fetch-web-content', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ url: 'https://www.mitzvah.capital/' })
+        });
+
+        if (!webContentResponse.ok) {
+            throw new Error(`Error fetching web content: ${webContentResponse.status}`);
+        }
+
+        const webContentData = await webContentResponse.json();
+        const webContent = webContentData.content;
+
+        const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -27,18 +44,19 @@ async function sendInput() {
             body: JSON.stringify({
                 model: "gpt-3.5-turbo",
                 messages: [
-                    { role: "system", content: systemText },
-                    { role: "user", content: userText }
+                    { role: "system", content: systemPrompt },
+                    { role: "assistant", content: webContent },
+                    { role: "user", content: inputText }
                 ]
             })
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Error: ${response.status} - ${errorText}`);
+        if (!openaiResponse.ok) {
+            const errorText = await openaiResponse.text();
+            throw new Error(`Error: ${openaiResponse.status} - ${errorText}`);
         }
 
-        const data = await response.json();
+        const data = await openaiResponse.json();
         if (data.choices && data.choices.length > 0 && data.choices[0].message) {
             responseOutput.textContent = data.choices[0].message.content.trim();
         } else {
