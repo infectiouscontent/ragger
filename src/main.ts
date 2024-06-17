@@ -1,41 +1,29 @@
-import './style.css';
-
-const button = document.getElementById('submission-button') as HTMLButtonElement | null;
-const userInput = document.getElementById('user-input') as HTMLTextAreaElement | null;
-const systemInput = document.getElementById('system-input') as HTMLInputElement | null;
-const responseOutput = document.getElementById('response') as HTMLElement | null;
-
 async function sendInput() {
+    const userInput = document.getElementById('user-input') as HTMLTextAreaElement | null;
+    const systemInput = document.getElementById('system-input') as HTMLInputElement | null;
+    const responseOutput = document.getElementById('response') as HTMLElement | null;
+
     if (!userInput || !systemInput || !responseOutput) {
         console.error('Required DOM elements are missing.');
         return;
     }
 
     const inputText = userInput.value.trim();
-    const systemPrompt = systemInput.value.trim();
-    if (!inputText || !systemPrompt) {
-        responseOutput.textContent = 'Inputs cannot be empty.';
+    const systemText = systemInput.value.trim();
+
+    if (!inputText) {
+        responseOutput.textContent = 'Input cannot be empty.';
         return;
     }
 
     try {
-        // Fetch web content from the backend server
-        const webContentResponse = await fetch('http://localhost:3000/fetch-web-content', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ url: 'https://www.mitzvah.capital/' })
-        });
-
-        if (!webContentResponse.ok) {
-            throw new Error(`Error fetching web content: ${webContentResponse.status}`);
+        const webResponse = await fetch('http://localhost:3000/api/fetch-web-content');
+        if (!webResponse.ok) {
+            throw new Error(`Error: ${webResponse.status} - ${await webResponse.text()}`);
         }
+        const webData = await webResponse.json();
 
-        const webContentData = await webContentResponse.json();
-        const webContent = webContentData.content;
-
-        const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -44,19 +32,19 @@ async function sendInput() {
             body: JSON.stringify({
                 model: "gpt-3.5-turbo",
                 messages: [
-                    { role: "system", content: systemPrompt },
-                    { role: "assistant", content: webContent },
-                    { role: "user", content: inputText }
+                    { role: "system", content: systemText },
+                    { role: "user", content: inputText },
+                    { role: "assistant", content: webData.content }
                 ]
             })
         });
 
-        if (!openaiResponse.ok) {
-            const errorText = await openaiResponse.text();
-            throw new Error(`Error: ${openaiResponse.status} - ${errorText}`);
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Error: ${response.status} - ${errorText}`);
         }
 
-        const data = await openaiResponse.json();
+        const data = await response.json();
         if (data.choices && data.choices.length > 0 && data.choices[0].message) {
             responseOutput.textContent = data.choices[0].message.content.trim();
         } else {
@@ -71,6 +59,7 @@ async function sendInput() {
     }
 }
 
+const button = document.getElementById('submission-button');
 if (button) {
     button.addEventListener('click', sendInput);
 } else {

@@ -6,9 +6,9 @@ git commit --amend --reset-author
 sudo apt -y update
 sudo apt -y upgrade
 sudo apt -y install nodejs npm && echo "installed node version $(node -v)" && echo "installed npm version $(npm -v)"
-npm install typescript express axios cheerio cors
-node server.js &
-# nohup node server.js > /dev/null 2>&1 &
+npm install typescript express axios cheerio cors node-fetch
+node node backend/server.js &
+# nohup node node backend/server.js > /dev/null 2>&1 &
 mkdir authentication
 vi authentication/openai
 while IFS='=' read -r key value; do export "$key"="$value"; done < "authentication/openai"
