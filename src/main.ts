@@ -28,7 +28,7 @@ async function sendInput() {
     } catch (error) {
         console.error('Failed to fetch web content:', error);
         // Provide a fallback value in case of an error
-        webData = { content: "Jamaica is 22." };
+        webData = { content: "Bounty Killer was a rude boy and his music is not appropriate for practicing Theravadins." };
     }
 
     try {
