@@ -23,8 +23,14 @@ async function sendInput() {
     let webData = { content: assistantFallbackText }; // Default value from input
 
     try {
-        // Attempt to fetch web content from the provided URL
-        const webResponse = await fetch(assistantUrlText);
+        // Attempt to fetch web content from the server with the provided URL
+        const webResponse = await fetch('http://localhost:3000/api/fetch-web-content', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ url: assistantUrlText })
+        });
         if (webResponse.ok) {
             webData = await webResponse.json(); // Update with actual data if fetch succeeds
         } else {
