@@ -1,5 +1,5 @@
 async function sendInput() {
-    const userInput = document.getElementById('user-input') as HTMLTextAreaElement | null;
+    const userInput = document.getElementById('user-input') as HTMLInputElement | null;
     const systemInput = document.getElementById('system-input') as HTMLInputElement | null;
     const responseOutput = document.getElementById('response') as HTMLElement | null;
 
@@ -16,22 +16,29 @@ async function sendInput() {
         return;
     }
 
-    let webData;
+    let webData = { content: "Default fallback content" }; // Default value
 
     try {
         // Attempt to fetch web content from a local server
         const webResponse = await fetch('http://localhost:3000/api/fetch-web-content');
-        if (!webResponse.ok) {
-            throw new Error(`Error: ${webResponse.status} - ${await webResponse.text()}`);
+        if (webResponse.ok) {
+            webData = await webResponse.json(); // Update with actual data if fetch succeeds
+        } else {
+            console.error(`Error fetching web content: ${webResponse.status} - ${await webResponse.text()}`);
         }
-        webData = await webResponse.json();
     } catch (error) {
         console.error('Failed to fetch web content:', error);
-        // Provide a fallback value in case of an error
-        webData = { content: "Bounty Killer was a rude boy and his music is not appropriate for practicing Theravadins." };
+        // Default webData is already set, so no further action needed
     }
 
     try {
+        // Prepare the messages array for the OpenAI API request
+        const messages = [
+            { role: "system", content: systemText },
+            { role: "user", content: inputText },
+            { role: "assistant", content: webData.content }
+        ];
+
         // Send a request to the OpenAI API
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
@@ -41,11 +48,7 @@ async function sendInput() {
             },
             body: JSON.stringify({
                 model: "gpt-3.5-turbo",
-                messages: [
-                    { role: "system", content: systemText },
-                    { role: "user", content: inputText },
-                    { role: "assistant", content: webData.content }
-                ]
+                messages: messages
             })
         });
 
