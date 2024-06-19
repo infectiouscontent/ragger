@@ -1,16 +1,18 @@
 async function sendInput() {
     const userInput = document.getElementById('user-input') as HTMLInputElement | null;
     const systemInput = document.getElementById('system-input') as HTMLInputElement | null;
+    const assistantUrlInput = document.getElementById('assistant-url-input') as HTMLInputElement | null;
     const assistantFallbackInput = document.getElementById('assistant-fallback-input') as HTMLInputElement | null;
     const responseOutput = document.getElementById('response') as HTMLElement | null;
 
-    if (!userInput || !systemInput || !assistantFallbackInput || !responseOutput) {
+    if (!userInput || !systemInput || !assistantUrlInput || !assistantFallbackInput || !responseOutput) {
         console.error('Required DOM elements are missing.');
         return;
     }
 
     const inputText = userInput.value.trim();
     const systemText = systemInput.value.trim();
+    const assistantUrlText = assistantUrlInput.value.trim();
     const assistantFallbackText = assistantFallbackInput.value.trim();
 
     if (!inputText) {
@@ -21,8 +23,8 @@ async function sendInput() {
     let webData = { content: assistantFallbackText }; // Default value from input
 
     try {
-        // Attempt to fetch web content from a local server
-        const webResponse = await fetch('http://localhost:3000/api/fetch-web-content');
+        // Attempt to fetch web content from the provided URL
+        const webResponse = await fetch(assistantUrlText);
         if (webResponse.ok) {
             webData = await webResponse.json(); // Update with actual data if fetch succeeds
         } else {
