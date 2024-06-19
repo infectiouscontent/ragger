@@ -1,22 +1,24 @@
 async function sendInput() {
     const userInput = document.getElementById('user-input') as HTMLInputElement | null;
     const systemInput = document.getElementById('system-input') as HTMLInputElement | null;
+    const assistantFallbackInput = document.getElementById('assistant-fallback-input') as HTMLInputElement | null;
     const responseOutput = document.getElementById('response') as HTMLElement | null;
 
-    if (!userInput || !systemInput || !responseOutput) {
+    if (!userInput || !systemInput || !assistantFallbackInput || !responseOutput) {
         console.error('Required DOM elements are missing.');
         return;
     }
 
     const inputText = userInput.value.trim();
     const systemText = systemInput.value.trim();
+    const assistantFallbackText = assistantFallbackInput.value.trim();
 
     if (!inputText) {
         responseOutput.textContent = 'Input cannot be empty.';
         return;
     }
 
-    let webData = { content: "Default fallback content" }; // Default value
+    let webData = { content: assistantFallbackText }; // Default value from input
 
     try {
         // Attempt to fetch web content from a local server
